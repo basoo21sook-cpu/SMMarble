@@ -36,7 +36,7 @@ void generatePlayers(int n, int initEnergy); //generate a new player
 void printPlayerStatus(void); //print all player status at the beginning of each turn
 
 //function prototypes
-#if 0
+#if 1
 void printGrades(int player); //print grade history of the player
 float calcAverageGrade(int player); //calculate average grade of the player
 smmGrade_e takeLecture(int player, char *lectureName, int credit); //take the lecture (insert a grade of the player)
@@ -234,13 +234,14 @@ int main(int argc, const char * argv[]) {
         void* ptr;
         printf("%s %i %i %i\n", name, type, credit, energy);
         ptr = smmObj_genObject(name, SMMNODE_OBJTYPE_BOARD, type, credit, energy, 0);
-        smm_board_nr = smmdb_addTail(LISTNO_NODE, ptr);
+        smm_board_nr = smmdb_addTail(LISTNO_NODE, ptr) + 1;
+        // 오류 의심 : 성공일때 반환 값이 0 이므로 +1을 해야, 총 갯수 나옴
     }
     fclose(fp);
     printf("Total number of board nodes : %i\n", smm_board_nr);
     
     
-#if 0
+#if 1
     //2. food card config 
     if ((fp = fopen(FOODFILEPATH,"r")) == NULL)
     {
@@ -249,9 +250,13 @@ int main(int argc, const char * argv[]) {
     }
     
     printf("\n\nReading food card component......\n");
-    while () //read a food parameter set
+    while ( fscanf(fp, "%s %i", name, &energy) == 2 ) //read a food parameter set
     {
         //store the parameter set
+        void* ptr;
+        printf("%s %i\n", name, energy);
+        ptr = smmObj_genObject(name, SMMNODE_OBJTYPE_FOOD, 0, 0, energy, 0);
+        smm_food_nr = smmdb_addTail(LISTNO_FOODCARD, ptr) + 1;
     }
     fclose(fp);
     printf("Total number of food cards : %i\n", smm_food_nr);
@@ -266,9 +271,13 @@ int main(int argc, const char * argv[]) {
     }
     
     printf("\n\nReading festival card component......\n");
-    while () //read a festival card string
+    while ( fscanf(fp, "%s", name) == 1 ) //read a festival card string
     {
         //store the parameter set
+        void* ptr;
+        printf("%s\n", name);
+        ptr = smmObj_genObject(name, SMMNODE_OBJTYPE_FEST, 0, 0, 0, 0);
+        smm_festival_nr = smmdb_addTail(LISTNO_FESTCARD, ptr) + 1;
     }
     fclose(fp);
     printf("Total number of festival cards : %i\n", smm_festival_nr);

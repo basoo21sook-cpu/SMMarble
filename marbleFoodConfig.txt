@@ -1,0 +1,8 @@
+Kimchi_Stew 8
+Tteokbokki 6
+Bibimbap 10
+Chicken 9
+Kimbap 5
+Ice_Americano 3
+Hot_Choco 4
+Fruit_Smoothie 7

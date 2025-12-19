@@ -11,6 +11,7 @@
 
 #define MAX_NODENR        100
 #define MAX_NODETYPE      7
+//#define MAX_GRADE 13
 
 
 
@@ -40,7 +41,7 @@ static char smmObj_nodeName[MAX_NODETYPE][MAX_CHARNAME] = {
        "festival"
 };
 
-static char smmObj_gradeName[MAX_GRADE][MAX_CHARNAME] = {
+static char smmObj_gradeName[SMMNODE_MAX_GRADE][MAX_CHARNAME] = {
        "A+",
        "A0",
        "A-",
@@ -65,6 +66,8 @@ typedef struct {
     int energy;
     int grade;
 } smmObj_object_t;
+
+static smmObj_object_t *smmObj_board;
 
 
 //object generation
