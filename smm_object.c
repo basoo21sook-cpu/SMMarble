@@ -14,8 +14,7 @@
 //#define MAX_GRADE 13
 
 
-
-
+#if 0
 #define GRADE_A+          0
 #define GRADE_A0          1
 #define GRADE_A-          2
@@ -29,7 +28,24 @@
 #define GRADE_D0          10
 #define GRADE_D-          11
 #define GRADE_F           12
+#endif
 
+typedef enum {
+    GRADE_APLUS  = 0,
+    GRADE_A0      = 1,
+    GRADE_AMINUS = 2,
+    GRADE_BPLUS  = 3,
+    GRADE_B0      = 4,
+    GRADE_BMINUS = 5,
+    GRADE_CPLUS  = 6,
+    GRADE_C0      = 7,
+    GRADE_CMINUS = 8,
+    GRADE_DPLUS  = 9,
+    GRADE_D0      = 10,
+    GRADE_DMINUS = 11,
+    GRADE_F       = 12,
+    GRADE_MAX     = 13
+} smmGrade_e;
 
 static char smmObj_nodeName[MAX_NODETYPE][MAX_CHARNAME] = {
        "lecture",
@@ -119,10 +135,14 @@ char* smmObj_getTypeName(int node_type)
 }
 
 
-#if 0
+#if 1
+char* smmObj_getNodeName(int player)
+{
+    return smmObj_nodeName[player];
+}
 char* smmObj_getGradeName(smmGrade_e grade)
 {
-    return smmGradeName[grade];
+    return smmObj_gradeName[grade];
 }
 #endif
 

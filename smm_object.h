@@ -46,7 +46,7 @@
 
 //object generation
 void* smmObj_genObject(char* name, int objType, int type, int credit, int energy, int grade);
-char* smmObj_getObjectName(int node_nr);
+char* smmObj_getObjectName(void *ptr);
 int smmObj_getNodeType(int node_nr);
 int smmObj_getObjectEnergy(void *ptr);
 char* smmObj_getTypeName(int node_type);
@@ -55,7 +55,8 @@ int smmObj_getNodeCredit(int node_nr);
 
 
 //element to string
-
+char* smmObj_getNodeName(int player);
+char* smmObj_getGradeName(smmGrade_e grade);
 
 
 #endif /* smm_object_h */
