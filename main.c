@@ -46,6 +46,11 @@ smmGrade_e takeLecture(int player, char *lectureName, int credit); // take the l
 //void printGrades(int player); //print all the grade history of the player
 #endif
 
+void clearLine(void) {
+  int ch;
+  while ((ch = getchar()) != '\n' && ch != EOF) {}
+}
+
 static int findFirstNodeOfType(int nodeType) { // 실험실을 찾기위한 함수
   for (int i = 0; i < smm_board_nr; i++) {
     if (smmObj_getObjectType(smmdb_getData(LISTNO_NODE,i)) == nodeType) return i;
@@ -122,9 +127,16 @@ void printPlayerStatus(void) {
   int i;
   for (i = 0; i < smm_player_nr; i++) {
     void* ptr = smmdb_getData(LISTNO_NODE, smm_players[i].pos);
-    printf("%s - position:%i(%s), credit:%i, energy:%i\n", smm_players[i].name, \
-           smm_players[i].pos, smmObj_getTypeName(smmObj_getObjectType(ptr)), \
-           smm_players[i].credit, smm_players[i].energy);
+    char *nodeName = ptr ? smmObj_getObjectName(ptr) : "INVALID";
+    printf("%s - position:%i(%s), EXP:%s", smm_players[i].name, \
+           smm_players[i].pos, nodeName, \
+           smm_players[i].flag_experiment ? "ON" : "OFF");
+    if (smm_players[i].flag_experiment) {
+      printf("(crit=%d)", smm_players[i].exp_success_crit);
+    }
+    printf(", credit:%i, energy:%i\n", \
+           smm_players[i].credit, \
+           smm_players[i].energy);
   }
 }
 
@@ -151,18 +163,20 @@ void generatePlayers(int n, int initEnergy) // 새 플레이어 생성
 
 int rolldie(int player) {
   char c;
-  printf(" Press any key to roll a die (press g to see grade): ");
-  c = getchar();
+  printf("input d to roll a die (input g to see grade): ");
+  scanf(" %c", &c);
   //fflush(stdin);
 
-#if 1
-  if (c == 'g')
+  if (c == 'g'){
     printGrades(player);
-#endif
-
-  while (c != '\n' && c != EOF) c = getchar();
-
-  return (rand() % MAX_DIE + 1);
+    return rolldie(player);
+  }
+  else if( c == 'd'){
+    return (rand() % MAX_DIE + 1);
+  }
+  else{
+    return rolldie(player);
+  }
 }
 
 // action code when a player stays at a node
@@ -180,7 +194,22 @@ void actionNode(int player) {
 
   switch (type) {
   case SMMNODE_TYPE_LECTURE:
+    // 수강 하기
     if (findGrade(player, smmObj_getObjectName(ptr)) == NULL) {
+      if (smm_players[player].energy < energy) {
+        printf(" [Lecture] not enough energy for '%s' (need %d, now %d)\n",
+              smmObj_getObjectName(ptr), energy, smm_players[player].energy);
+        break;
+      }
+      printf(" [Lecture] Take '%s'? (y/n): ", smmObj_getObjectName(ptr));
+      char yn = 'n';
+      if (scanf(" %c", &yn) != 1) yn = 'n';
+      clearLine();
+
+      if (!(yn == 'y' || yn == 'Y')) {
+        printf(" [Lecture] dropped '%s'\n", smmObj_getObjectName(ptr));
+        break;
+      }
       smm_players[player].credit += credit;
       smm_players[player].energy -= energy;
 
@@ -324,6 +353,7 @@ int main(int argc, const char *argv[]) {
   // 1. import parameters
   // ---------------------------------------------------------------------------------
   // 1-1. boardConfig
+  // 파일 읽어서 리스트 노드 채우기
   if ((fp = fopen(BOARDFILEPATH, "r")) == NULL) {
     printf("[ERROR] failed to open %s. This file should be in the same "
            "directory of SMMarble.exe.\n",
@@ -392,9 +422,17 @@ int main(int argc, const char *argv[]) {
   // ---------------------------------------------------------------------------------
 
   do {
-    // input player number to player_nr
+    // 몇개 입력할건지 입력받기
+    int input_chk;
     printf("Input player number:");
-    scanf("%i", &smm_player_nr);
+    input_chk = scanf("%i", &smm_player_nr);
+    // 문자열 입력 방지
+    if (input_chk != 1) {
+        printf("Invalid player number!\n");
+        clearLine();
+        // 입력 한 줄 버리기
+        continue;
+    }
     fflush(stdin);
 
     if (smm_player_nr <= 0 || smm_player_nr > MAX_PLAYER)

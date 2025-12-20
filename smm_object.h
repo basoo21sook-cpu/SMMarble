@@ -41,7 +41,7 @@
     C0,
     C-
 */
-#define SMMNODE_MAX_GRADE         13
+#define SMMNODE_MAX_GRADE         9
 
 typedef enum {
     GRADE_APLUS  = 0,
@@ -52,12 +52,7 @@ typedef enum {
     GRADE_BMINUS = 5,
     GRADE_CPLUS  = 6,
     GRADE_C0      = 7,
-    GRADE_CMINUS = 8,
-    GRADE_DPLUS  = 9,
-    GRADE_D0      = 10,
-    GRADE_DMINUS = 11,
-    GRADE_F       = 12,
-    GRADE_MAX     = 13
+    GRADE_CMINUS = 8
 } smmGrade_e;
 // enum으로 grade관리
 
