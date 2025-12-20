@@ -116,6 +116,12 @@ int smmObj_getObjectCredit(void *ptr)
       return (objPtr->credit);
 }
 
+int smmObj_getObjectType(void *ptr){
+      smmObj_object_t* objPtr = (smmObj_object_t*)ptr;
+      
+      return (objPtr->type); 
+}
+
 #if 0
 char* smmObj_getNodeName(int node_nr)
 {

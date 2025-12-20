@@ -68,6 +68,7 @@ char* smmObj_getObjectName(void *ptr);
 int smmObj_getObjectGrade(void *ptr);
 int smmObj_getObjectEnergy(void *ptr);
 int smmObj_getObjectCredit(void *ptr);
+int smmObj_getObjectType(void *ptr);
 /*
 char* smmObj_getNodeName(int node_nr);
 int smmObj_getNodeType(int node_nr);

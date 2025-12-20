@@ -21,6 +21,7 @@ static int smm_food_nr;
 static int smm_festival_nr;
 static int smm_player_nr;
 
+// 플레이터 정보의 각 노드( 구조체 )
 typedef struct {
   char name[MAX_CHARNAME];
   int pos;
@@ -29,18 +30,23 @@ typedef struct {
   int flag_graduated;
 } smm_player_t;
 
+// 플레이어 정보 담는 배열을 가르키는 포인터
 smm_player_t *smm_players;
 
-void generatePlayers(int n, int initEnergy); // generate a new player
-void printPlayerStatus(void); // print all player status at the beginning of each turn
+void generatePlayers(int n, int initEnergy); // 새로운 플레이어 생성
+void printPlayerStatus(void); // 플레이어 상태를 턴 마다 출력하기
 
 // function prototypes
 #if 1
-void printGrades(int player);       // print grade history of the player
+void printGrades(int player);       // 지금까지 수강한 과목 출력하기
 float calcAverageGrade(int player); // calculate average grade of the player
 smmGrade_e takeLecture(int player, char *lectureName, int credit); // take the lecture (insert a grade of the player) 
 //void printGrades(int player); //print all the grade history of the player
 #endif
+
+void* getBoardInformation(int pos){ // 보드 정보를 반환하는 함수
+  return smmdb_getData(SMMNODE_OBJTYPE_BOARD, pos);
+}
 
 void *findGrade(int player, char *lectureName) // find the grade from the player's grade history
 {
@@ -99,15 +105,16 @@ void goForward(int player, int step) { // make player go "step" steps on the
   for (i = 0; i < step; i++) {
     smm_players[player].pos = (smm_players[player].pos + 1) % smm_board_nr;
     printf("  => moved to %i(%s)\n", smm_players[player].pos,
-           smmObj_getTypeName(smmObj_getNodeType(smm_players[player].pos)));
+           smmObj_getTypeName(smmObj_getObjectType(ptr)));
   }
 }
 
 void printPlayerStatus(void) {
   int i;
   for (i = 0; i < smm_player_nr; i++) {
+    void* ptr = smmdb_getData(LISTNO_NODE, smm_players[i].pos);
     printf("%s - position:%i(%s), credit:%i, energy:%i\n", smm_players[i].name,
-           smm_players[i].pos, smmObj_getTypeName(smmObj_getNodeType(smm_players[i].pos)),
+           smm_players[i].pos, smmObj_getTypeName(smmObj_getObjectType(ptr)),
            smm_players[i].credit, smm_players[i].energy);
   }
 }
@@ -148,8 +155,8 @@ int rolldie(int player) {
 void actionNode(int player) {
   void *ptr = smmdb_getData(LISTNO_NODE, smm_players[player].pos);
 
-  int type = smmObj_getNodeType(smm_players[player].pos);
-  int credit = smmObj_getNodeCredit(smm_players[player].pos);
+  int type = smmObj_getObjectType(ptr);
+  int credit = smmObj_getObjectCredit(ptr);
   int energy = smmObj_getObjectEnergy(ptr);
   int grade;
   void *gradePtr;
