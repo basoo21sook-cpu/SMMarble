@@ -30,22 +30,6 @@
 #define GRADE_F           12
 #endif
 
-typedef enum {
-    GRADE_APLUS  = 0,
-    GRADE_A0      = 1,
-    GRADE_AMINUS = 2,
-    GRADE_BPLUS  = 3,
-    GRADE_B0      = 4,
-    GRADE_BMINUS = 5,
-    GRADE_CPLUS  = 6,
-    GRADE_C0      = 7,
-    GRADE_CMINUS = 8,
-    GRADE_DPLUS  = 9,
-    GRADE_D0      = 10,
-    GRADE_DMINUS = 11,
-    GRADE_F       = 12,
-    GRADE_MAX     = 13
-} smmGrade_e;
 
 static char smmObj_nodeName[MAX_NODETYPE][MAX_CHARNAME] = {
        "lecture",
@@ -103,7 +87,6 @@ void* smmObj_genObject(char* name, int objType, int type, int credit, int energy
 }
 
 
-
 //member retrieving
 char* smmObj_getObjectName(void *ptr)
 {
@@ -112,14 +95,11 @@ char* smmObj_getObjectName(void *ptr)
       return (objPtr->name);
 }
 
-int smmObj_getObjectType(int node_nr)
+int smmObj_getObjectGrade(void *ptr)
 {
-      return (smmObj_board[node_nr].type);
-}
-
-int smmObj_getObjectCredit(int node_nr)
-{
-      return (smmObj_board[node_nr].credit);
+      smmObj_object_t* objPtr = (smmObj_object_t*)ptr;
+      
+      return (objPtr->grade);
 }
 
 int smmObj_getObjectEnergy(void *ptr)
@@ -129,17 +109,47 @@ int smmObj_getObjectEnergy(void *ptr)
       return (objPtr->energy);
 }
 
+int smmObj_getObjectCredit(void *ptr)
+{
+      smmObj_object_t* objPtr = (smmObj_object_t*)ptr;
+      
+      return (objPtr->credit);
+}
+
+#if 0
+char* smmObj_getNodeName(int node_nr)
+{
+      return (smmObj_board[node_nr].name);
+}
+
+int smmObj_getNodeType(int node_nr)
+{
+      return (smmObj_board[node_nr].type);
+}
+
+int smmObj_getNodeCredit(int node_nr)
+{
+      return (smmObj_board[node_nr].credit);
+}
+
+int smmObj_getNodeEnergy(int node_nr)
+{
+      return (smmObj_board[node_nr].energy);
+}
+int smmObj_getNodeGrade(int node_nr)
+{
+      return (smmObj_board[node_nr].grade);
+}
+#endif
+
+
+#if 1
+// 노드 이름을 string으로 반환
 char* smmObj_getTypeName(int node_type)
 {
       return (smmObj_nodeName[node_type]);
 }
-
-
-#if 1
-char* smmObj_getNodeName(int player)
-{
-    return smmObj_nodeName[player];
-}
+// 등급을 string으로 반환함
 char* smmObj_getGradeName(smmGrade_e grade)
 {
     return smmObj_gradeName[grade];

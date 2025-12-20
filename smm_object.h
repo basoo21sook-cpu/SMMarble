@@ -43,19 +43,42 @@
 */
 #define SMMNODE_MAX_GRADE         13
 
+typedef enum {
+    GRADE_APLUS  = 0,
+    GRADE_A0      = 1,
+    GRADE_AMINUS = 2,
+    GRADE_BPLUS  = 3,
+    GRADE_B0      = 4,
+    GRADE_BMINUS = 5,
+    GRADE_CPLUS  = 6,
+    GRADE_C0      = 7,
+    GRADE_CMINUS = 8,
+    GRADE_DPLUS  = 9,
+    GRADE_D0      = 10,
+    GRADE_DMINUS = 11,
+    GRADE_F       = 12,
+    GRADE_MAX     = 13
+} smmGrade_e;
+// enum으로 grade관리
 
 //object generation
 void* smmObj_genObject(char* name, int objType, int type, int credit, int energy, int grade);
+
 char* smmObj_getObjectName(void *ptr);
-int smmObj_getNodeType(int node_nr);
+int smmObj_getObjectGrade(void *ptr);
 int smmObj_getObjectEnergy(void *ptr);
-char* smmObj_getTypeName(int node_type);
+int smmObj_getObjectCredit(void *ptr);
+/*
+char* smmObj_getNodeName(int node_nr);
+int smmObj_getNodeType(int node_nr);
 int smmObj_getNodeCredit(int node_nr);
+int smmObj_getNodeEnergy(int node_nr);
+int smmObj_getNodeGrade(int node_nr);*/
 //member retrieving
 
 
 //element to string
-char* smmObj_getNodeName(int player);
+char* smmObj_getTypeName(int node_type);
 char* smmObj_getGradeName(smmGrade_e grade);
 
 

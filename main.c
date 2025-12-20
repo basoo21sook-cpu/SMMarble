@@ -13,7 +13,7 @@
 
 #define BOARDFILEPATH "marbleBoardConfig.txt"
 #define FOODFILEPATH "marbleFoodConfig.txt"
-#define FESTFILEPATH "marbleFestivalConfig.txt"
+#define FESTFILEPATH "marbleFestConfig.txt"
 
 // board configuration parameters
 static int smm_board_nr;
@@ -38,7 +38,7 @@ void printPlayerStatus(void); // print all player status at the beginning of eac
 #if 1
 void printGrades(int player);       // print grade history of the player
 float calcAverageGrade(int player); // calculate average grade of the player
-//smmGrade takeLecture(int player, char *lectureName, int credit); // take the lecture (insert a grade of the player) 
+smmGrade_e takeLecture(int player, char *lectureName, int credit); // take the lecture (insert a grade of the player) 
 //void printGrades(int player); //print all the grade history of the player
 #endif
 
@@ -57,13 +57,19 @@ void *findGrade(int player, char *lectureName) // find the grade from the player
   return NULL;
 }
 
-void printGrade(int player) {
+void printGrades(int player) {
   int size = smmdb_len(LISTNO_OFFSET_GRADE + player);
-  int i;
 
+  printf("%s's Grades\n", smm_players[player].name);
+
+  int i;
   for (i = 0; i < size; i++) {
     void *ptr = smmdb_getData(LISTNO_OFFSET_GRADE + player, i);
-    printf("%s \n ",smmObj_getObjectName(ptr));
+    printf("%2d) %-20s  %2d  %s\n", \
+       i + 1, \
+       smmObj_getObjectName(ptr), \
+       smmObj_getObjectCredit(ptr), \
+       smmObj_getGradeName((smmGrade_e)smmObj_getObjectGrade(ptr)));
   }
 }
 
@@ -71,8 +77,11 @@ int isGraduated(void) // check if any player is graduated
 {
   int i;
   for (i = 0; i < smm_player_nr; i++) {
-    if (smm_players[i].flag_graduated == 1)
+    if (smm_players[i].flag_graduated == 1){
+      // 1일때 출력
+      printGrades(i);
       return 1;
+    }
   }
 
   return 0;
@@ -90,7 +99,7 @@ void goForward(int player, int step) { // make player go "step" steps on the
   for (i = 0; i < step; i++) {
     smm_players[player].pos = (smm_players[player].pos + 1) % smm_board_nr;
     printf("  => moved to %i(%s)\n", smm_players[player].pos,
-           smmObj_getNodeName(smm_players[player].pos));
+           smmObj_getTypeName(smmObj_getNodeType(smm_players[player].pos)));
   }
 }
 
@@ -98,7 +107,7 @@ void printPlayerStatus(void) {
   int i;
   for (i = 0; i < smm_player_nr; i++) {
     printf("%s - position:%i(%s), credit:%i, energy:%i\n", smm_players[i].name,
-           smm_players[i].pos, smmObj_getNodeName(smm_players[i].pos),
+           smm_players[i].pos, smmObj_getTypeName(smmObj_getNodeType(smm_players[i].pos)),
            smm_players[i].credit, smm_players[i].energy);
   }
 }
@@ -115,7 +124,7 @@ void generatePlayers(int n, int initEnergy) // generate a new player
     smm_players[i].energy = initEnergy;
     smm_players[i].flag_graduated = 0;
 
-    printf("Input %i-th player name:", i);
+    printf("Input %i-th player name:", i + 1);
     scanf("%s", &smm_players[i].name[0]);
     fflush(stdin);
   }
@@ -139,9 +148,9 @@ int rolldie(int player) {
 void actionNode(int player) {
   void *ptr = smmdb_getData(LISTNO_NODE, smm_players[player].pos);
 
-  int type = smmObj_getNodeType(ptr);
+  int type = smmObj_getNodeType(smm_players[player].pos);
   int credit = smmObj_getNodeCredit(smm_players[player].pos);
-  int energy = smmObj_getNodeEnergy(smm_players[player].pos);
+  int energy = smmObj_getObjectEnergy(ptr);
   int grade;
   void *gradePtr;
 
@@ -150,7 +159,7 @@ void actionNode(int player) {
 
   switch (type) {
   case SMMNODE_TYPE_LECTURE:
-    if (findGrade(player, smmObj_getObjectName(smm_players[player].pos)) ==
+    if (findGrade(player, smmObj_getObjectName(ptr)) ==
         NULL) {
       smm_players[player].credit += credit;
       smm_players[player].energy -= energy;
@@ -225,9 +234,8 @@ int main(int argc, const char *argv[]) {
     // store the parameter set
     void *ptr;
     printf("%s %i %i %i\n", name, type, credit, energy);
-    ptr =
-        smmObj_genObject(name, SMMNODE_OBJTYPE_BOARD, type, credit, energy, 0);
-    smm_board_nr = smmdb_addTail(LISTNO_NODE, ptr) + 1;
+    ptr = smmObj_genObject(name, SMMNODE_OBJTYPE_BOARD, type, credit, energy, 0);
+    smm_board_nr += smmdb_addTail(LISTNO_NODE, ptr) + 1;
     // 오류 의심 : 성공일때 반환 값이 0 이므로 +1을 해야, 총 갯수 나옴
   }
   fclose(fp);
@@ -249,7 +257,7 @@ int main(int argc, const char *argv[]) {
     void *ptr;
     printf("%s %i\n", name, energy);
     ptr = smmObj_genObject(name, SMMNODE_OBJTYPE_FOOD, 0, 0, energy, 0);
-    smm_food_nr = smmdb_addTail(LISTNO_FOODCARD, ptr) + 1;
+    smm_food_nr += smmdb_addTail(LISTNO_FOODCARD, ptr) + 1;
   }
   fclose(fp);
   printf("Total number of food cards : %i\n", smm_food_nr);
@@ -269,7 +277,7 @@ int main(int argc, const char *argv[]) {
     void *ptr;
     printf("%s\n", name);
     ptr = smmObj_genObject(name, SMMNODE_OBJTYPE_FEST, 0, 0, 0, 0);
-    smm_festival_nr = smmdb_addTail(LISTNO_FESTCARD, ptr) + 1;
+    smm_festival_nr += smmdb_addTail(LISTNO_FESTCARD, ptr) + 1;
   }
   fclose(fp);
   printf("Total number of festival cards : %i\n", smm_festival_nr);
@@ -301,7 +309,7 @@ int main(int argc, const char *argv[]) {
 
     // 4-1. initial printing
     printPlayerStatus();
-
+    #if 0
     // 4-2. die rolling (if not in experiment)
     die_result = rolldie(turn);
 
@@ -314,9 +322,9 @@ int main(int argc, const char *argv[]) {
 
     // 4-5. next turn
     turn = (turn + 1) % smm_player_nr;
+    #endif
   }
 
-  printGrades(turn);
 
   free(smm_players);
 
